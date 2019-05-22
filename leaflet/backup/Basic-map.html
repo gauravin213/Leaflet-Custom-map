@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MAp</title>
+
+	<link rel="stylesheet" type="text/css" href="css/leaflet.css">
+	<script type="text/javascript" src="js/leaflet.js"></script>
+
+	<style type="text/css">
+		#map { height: 500px; }
+	</style>
+
+</head>
+<body>
+
+	<div id="map"></div>
+
+</body>
+
+
+<script type="text/javascript">
+	
+/*var map = L.map('map').setView([21.146633, 79.088860], 4);*/
+
+/*var map = L.map("map", {
+    zoomControl: false
+}).setView([21.146633, 79.088860], 4);
+
+//
+var marker = L.marker([21.146633, 79.088860]).addTo(map);
+
+console.log(marker);
+
+//Add scal per zoom px
+L.control.scale().addTo(map);
+
+
+//add zoom control with your options
+L.control.zoom({
+     position:'topright'
+}).addTo(map);
+
+
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZ2F1cmF2aW4yMTMiLCJhIjoiY2p0bDVsMjBpMDIzMzN5bzF4aXZrZmVsdCJ9.mHogCW5SIYmVii3r9HNCAQ', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'your.mapbox.access.token'
+}).addTo(map);
+
+
+
+L.marker([19.076090, 72.877426]).addTo(map);
+L.marker([27.1594096, 78.0577193]).addTo(map);*/
+
+
+
+
+/**/
+
+/*var statesData = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          72.877426,
+          19.076090
+          
+        ]
+      },
+      "properties": {
+      	"name": "Alabama",
+        "density": 94.65,
+        "phoneFormatted": "(202) 234-7336",
+        "phone": "2022347336",
+        "address": "1471 P St NW",
+        "city": "Washington DC 123",
+        "country": "United States",
+        "crossStreet": "at 15th St NW",
+        "postalCode": "20005",
+        "state": "D.C."
+      }
+    }
+  ]
+};
+
+var mapboxAccessToken = 'pk.eyJ1IjoiZ2F1cmF2aW4yMTMiLCJhIjoiY2p0bDVsMjBpMDIzMzN5bzF4aXZrZmVsdCJ9.mHogCW5SIYmVii3r9HNCAQ';
+var map = L.map('map').setView([21.146633, 79.088860], 4);
+
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=' + mapboxAccessToken, {
+    id: 'mapbox.light',
+    attribution: 'PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP'
+}).addTo(map);*/
+
+
+var map = L.map('map').setView([37.8, -96], 4);
+
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZ2F1cmF2aW4yMTMiLCJhIjoiY2p0bDVsMjBpMDIzMzN5bzF4aXZrZmVsdCJ9.mHogCW5SIYmVii3r9HNCAQ', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'your.mapbox.access.token'
+}).addTo(map);
+
+
+
+var states = [{
+    "type": "Feature",
+    "properties": {"party": "Republican"},
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+            [-104.05, 48.99],
+            [-97.22,  48.98],
+            [-96.58,  45.94],
+            [-104.03, 45.94],
+            [-104.05, 48.99]
+        ]]
+    }
+}/*, {
+    "type": "Feature",
+    "properties": {"party": "Democrat"},
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+            [-109.05, 41.00],
+            [-102.06, 40.99],
+            [-102.03, 36.99],
+            [-109.04, 36.99],
+            [-109.05, 41.00]
+        ]]
+    }
+}*/];
+
+L.geoJSON(states, {
+    style: function(feature) {
+        switch (feature.properties.party) {
+            case 'Republican': return {color: "#ff0000"};
+            case 'Democrat':   return {color: "#0000ff"};
+        }
+    }
+}).addTo(map);
+
+
+/*L.marker([48.99, -104.05]).addTo(map);
+
+L.marker([48.98, -97.22]).addTo(map);
+
+L.marker([45.94, -96.58]).addTo(map);
+
+L.marker([45.94, -104.03]).addTo(map);
+
+L.marker([48.99, -104.05]).addTo(map);*/
+
+
+console.log(states.length);
+
+
+/*function makeRoute(e)
+{
+    if(pointsSelection.length > 0)
+    {
+        pointsSelection.push(e.target.getLatLng());
+        var firstpolyline = new L.Polyline(pointsSelection, {
+        color: 'blue',
+        weight: 5,
+        smoothFactor: 1
+        });
+
+        firstpolyline.addTo(map);
+
+        pointsArrayCollection.push(pointsSelection);
+        polyArrayCollection.push(firstpolyline);
+
+        selection = [];
+        pointsSelection = [];
+    }
+    else
+    {
+        alert("Please select more than one point");
+    }
+}*/
+
+// create a red polyline from an array of LatLng points
+var latlngs = [
+    [45.51, -122.68],
+    [37.77, -122.43],
+    [34.04, -118.2]
+];
+var polyline = L.polyline(latlngs, {color: 'red'}).addTo(map);
+// zoom the map to the polyline
+map.fitBounds(polyline.getBounds());
+/**/
+
+
+
+
+</script>
+
+
+</html>

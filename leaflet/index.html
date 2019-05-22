@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MAp</title>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+
+
+	<link rel="stylesheet" type="text/css" href="assets/css/leaflet.css">
+	<script type="text/javascript" src="assets/js/leaflet.js"></script>
+</head>
+<body>
+
+
+<div class="row">
+
+    <div class="col-sm-8">
+      <div id="mapid" style="height: 600px;"></div>
+    </div>
+
+    <div class="col-sm-4">
+      <div class='sidebar'><div class='heading'><h1>Our locations</h1></div><div id='listings' class='listings'></div></div>
+    </div>
+  
+</div>
+
+
+
+</body>
+
+
+<script type="text/javascript">
+
+var map_center_lng = 21.146633;
+var map_center_lat = 79.088860;
+
+	
+var map = L.map('mapid').setView([map_center_lng, map_center_lat], 5);
+
+var tile_layer= L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZ2F1cmF2aW4yMTMiLCJhIjoiY2p0bDVsMjBpMDIzMzN5bzF4aXZrZmVsdCJ9.mHogCW5SIYmVii3r9HNCAQ', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'your.mapbox.access.token'
+}).addTo(map);
+
+tile_layer.addTo(map);
+tile_layer.on("load",function() { 
+  jQuery('.leaflet-marker-icon').each(function( index ) {
+    var target = jQuery(this);
+    target.attr('id', 'icon-'+index);
+  });
+});
+
+
+var storesData = {
+  "type": "FeatureCollection",
+  "features": [
+      {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          21.146633,
+          79.088860
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 234-7336",
+        "phone": "2022347336",
+        "address": "1471 P St NW",
+        "city": "Washington DC 123",
+        "country": "United States",
+        "crossStreet": "at 15th St NW",
+        "postalCode": "20005",
+        "state": "D.C.",
+        "customIcons": ["marker-c.png","marker-b.png"]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.076090,
+          72.877426
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 234-7336",
+        "phone": "2022347336",
+        "address": "1471 P St NW",
+        "city": "Washington DC 123",
+        "country": "United States",
+        "crossStreet": "at 15th St NW",
+        "postalCode": "20005",
+        "state": "D.C.",
+        "customIcons": ["marker-a.png","marker-b.png"]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.167040,
+          75.040298
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 507-8357",
+        "phone": "2025078357",
+        "address": "2221 I St NW",
+        "city": "Washington DC",
+        "country": "United States",
+        "crossStreet": "at 22nd St NW",
+        "postalCode": "20037",
+        "state": "D.C.",
+        "customIcons": ["marker-building-a.png","marker-building-b.png"]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          26.540457,
+          88.719391
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 507-8357",
+        "phone": "2025078357",
+        "address": "2221 I St NW",
+        "city": "Washington DC",
+        "country": "United States",
+        "crossStreet": "at 22nd St NW",
+        "postalCode": "20037",
+        "state": "D.C.",
+        "customIcons": ["marker-building-a.png","marker-building-b.png"]
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+         27.176670,
+         78.008072
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 507-8357",
+        "phone": "2025078357",
+        "address": "2221 I St NW",
+        "city": "Washington DC",
+        "country": "United States",
+        "crossStreet": "at 22nd St NW",
+        "postalCode": "20037",
+        "state": "D.C.",
+        "customIcons": ["marker-building-a.png","marker-building-b.png"]
+      }
+    }
+  ]
+};
+
+function buildLocationList(data) {
+
+  // Iterate through the list of stores
+  for (i = 0; i < data.features.length; i++) {
+    var currentFeature = data.features[i];
+    // Shorten data.feature.properties to `prop` so we're not
+    // writing this long form over and over again.
+    var prop = currentFeature.properties;
+
+    // Select the listing container in the HTML and append a div
+    // with the class 'item' for each store
+    var listings = document.getElementById('listings');
+    var listing = listings.appendChild(document.createElement('div'));
+    listing.className = 'item';
+    listing.id = 'listing-' + i;
+
+    // Create a new link with the class 'title' for each store
+    // and fill it with the store address
+    var link = listing.appendChild(document.createElement('a'));
+    link.href = '#';
+    link.className = 'title';
+    link.dataPosition = i;
+    link.innerHTML = prop.address;
+
+    link.style.backgroundImage = "url('assets/images/"+prop.customIcons[0]+"')";
+    link.style.backgroundRepeat = "no-repeat";
+
+    
+    // Add an event listener for the links in the sidebar listing
+    link.addEventListener('click', function(e) { 
+      // Update the currentFeature to the store associated with the clicked link
+      var clickedListing = data.features[this.dataPosition];
+      // 1. Fly to the point associated with the clicked link
+      flyToStore(clickedListing);
+      // 2. Close all other popups and display popup for clicked store
+      createPopUp(clickedListing);
+      // 3. Highlight listing in sidebar (and remove highlight for all other listings)
+
+      var activeItem = document.getElementsByClassName('active');
+       //console.log(activeItem);
+      if (activeItem[0]) {
+        activeItem[0].classList.remove('active');
+      }
+      this.parentNode.classList.add('active');
+      
+    });
+
+
+    // Create a new div with the class 'details' for each store
+    // and fill it with the city and phone number
+    var details = listing.appendChild(document.createElement('div'));
+    details.innerHTML = prop.city;
+    if (prop.phone) {
+      details.innerHTML += ' · ' + prop.phoneFormatted;
+    }
+  }
+}
+
+buildLocationList(storesData);
+
+function flyToStore(currentFeature) { 
+
+  var lon = currentFeature.geometry.coordinates[0];
+
+  var lat = currentFeature.geometry.coordinates[1];
+
+  map.setView([lon, lat], 5);
+
+
+  /**/
+/*  var popLocation= new L.LatLng(lon,lat);
+var popup = L.popup()
+    .setLatLng(popLocation)
+    .setContent('<p>Hello world!<br />This is a nice popup.</p>')
+    .openOn(map);*/
+  /**/
+
+}
+
+function createPopUp(currentFeature) {   //console.log(currentFeature.properties.customIcons[0]);
+
+
+  var cue_icon_0= currentFeature.properties.customIcons[0];
+  var cue_icon_1= currentFeature.properties.customIcons[1];
+
+
+  //Map marker icons
+  var LeafIcon = L.Icon.extend({
+        options: {
+            iconSize:     [30, 70],
+            iconAnchor:   [25, 50], 
+            popupAnchor:  [-10, -50]
+        }
+  });
+  var markerIcon = new LeafIcon({iconUrl: 'assets/images/'+cue_icon_1});
+  L.icon = function (options) {
+        return new L.Icon(options);
+  };
+  //Map marker icons
+
+  var lon = currentFeature.geometry.coordinates[0];
+
+  var lat = currentFeature.geometry.coordinates[1];
+
+  var htm = '<div>'
+    +'<img src="assets/images/img12.jpg" style="width:100%;">'
+    +'<p>Leh is located some 3500 metres above sea level and is the capital of Ladakh. The town lies in the ancient Indus valley and has been a trading post for Himalayan peoples for centuries.</p>'
+    +'<p>'+currentFeature.properties.address+'</p>'
+    +'</div>';
+
+  var marker =  L.marker([lon, lat], {icon: markerIcon}).addTo(map).bindPopup(htm).openPopup();
+
+  marker.on('click', function(e) {  
+      //alert("ppp");
+  });
+
+  marker.on('popupclose', function(e) { 
+      map.removeLayer(marker);
+  });
+}
+
+
+
+
+storesData.features.forEach(function(currentFeature) { 
+
+    //Map marker icons
+    var cue_icon_0= currentFeature.properties.customIcons[0];
+    var cue_icon_1= currentFeature.properties.customIcons[1];
+    //Map marker icons
+    var LeafIcon = L.Icon.extend({
+          options: {
+              iconSize:     [20, 50],  //width and height
+              iconAnchor:   [22, 47], 
+              popupAnchor:  [-2, -40]
+          }
+    });
+    var markerIcon = new LeafIcon({iconUrl: 'assets/images/'+cue_icon_0});
+    L.icon = function (options) {
+          return new L.Icon(options);
+    }; 
+    //Map marker icons
+
+    var lon = currentFeature.geometry.coordinates[0];
+
+    var lat = currentFeature.geometry.coordinates[1];
+
+    var marker =  L.marker([lon,lat], {icon: markerIcon}).addTo(map);
+
+    marker.on('click', function(e) {   
+
+      createPopUp(currentFeature);
+
+    });
+
+});
+
+
+/*Custom Jquery*/
+jQuery(document).on('click', '.leaflet-marker-icon', function(){  
+
+  var target = jQuery(this);
+
+  var id_str = target.attr('id');
+
+  if(typeof id_str != 'undefined'){
+
+    var id = id_str.replace("icon-", '');
+    jQuery('#listings> .item').removeClass('active');
+    jQuery('#listing-'+id).addClass('active');
+
+  }
+
+});
+/*Custom Jquery*/
+
+</script>
+
+
+</html>

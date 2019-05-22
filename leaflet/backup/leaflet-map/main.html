@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MAp</title>
+
+	<link rel="stylesheet" type="text/css" href="css/leaflet.css">
+  <script type="text/javascript" src="js/leaflet.js"></script>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<style type="text/css">
+		#mapid { height: 500px; }
+	</style>
+
+</head>
+<body>
+
+	<div id="mapid"></div>
+
+    <div class='sidebar'>
+  <div class='heading'>
+    <h1>Our locations</h1>
+  </div>
+  <div id='listings' class='listings'></div>
+</div>
+
+    <button id="btn">BTM</button>
+
+</body>
+
+
+<script type="text/javascript">
+	
+var map = L.map('mapid').setView([21.146633, 79.088860], 4);
+
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiZ2F1cmF2aW4yMTMiLCJhIjoiY2p0bDVsMjBpMDIzMzN5bzF4aXZrZmVsdCJ9.mHogCW5SIYmVii3r9HNCAQ', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'your.mapbox.access.token'
+}).addTo(map);
+
+
+var stores = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          19.076090,
+          72.877426
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 234-7336",
+        "phone": "2022347336",
+        "address": "1471 P St NW",
+        "city": "Washington DC 123",
+        "country": "United States",
+        "crossStreet": "at 15th St NW",
+        "postalCode": "20005",
+        "state": "D.C."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          14.167040,
+          75.040298
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 507-8357",
+        "phone": "2025078357",
+        "address": "2221 I St NW",
+        "city": "Washington DC",
+        "country": "United States",
+        "crossStreet": "at 22nd St NW",
+        "postalCode": "20037",
+        "state": "D.C."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          26.540457,
+          88.719391
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 507-8357",
+        "phone": "2025078357",
+        "address": "2221 I St NW",
+        "city": "Washington DC",
+        "country": "United States",
+        "crossStreet": "at 22nd St NW",
+        "postalCode": "20037",
+        "state": "D.C."
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+         27.176670,
+         78.008072
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 507-8357",
+        "phone": "2025078357",
+        "address": "2221 I St NW",
+        "city": "Washington DC",
+        "country": "United States",
+        "crossStreet": "at 22nd St NW",
+        "postalCode": "20037",
+        "state": "D.C."
+      }
+    }
+  ]
+};
+
+function buildLocationList(data) {
+  // Iterate through the list of stores
+  for (i = 0; i < data.features.length; i++) {
+    var currentFeature = data.features[i];
+    // Shorten data.feature.properties to `prop` so we're not
+    // writing this long form over and over again.
+    var prop = currentFeature.properties;
+    // Select the listing container in the HTML and append a div
+    // with the class 'item' for each store
+    var listings = document.getElementById('listings');
+    var listing = listings.appendChild(document.createElement('div'));
+    listing.className = 'item';
+    listing.id = 'listing-' + i;
+
+    // Create a new link with the class 'title' for each store
+    // and fill it with the store address
+    var link = listing.appendChild(document.createElement('a'));
+    link.href = '#';
+    link.className = 'title';
+    link.dataPosition = i;
+    link.innerHTML = prop.address;
+
+    
+
+    // Add an event listener for the links in the sidebar listing
+    link.addEventListener('click', function(e) { 
+      // Update the currentFeature to the store associated with the clicked link
+      var clickedListing = data.features[this.dataPosition];
+      // 1. Fly to the point associated with the clicked link
+      flyToStore(clickedListing);
+      // 2. Close all other popups and display popup for clicked store
+      createPopUp(clickedListing);
+      // 3. Highlight listing in sidebar (and remove highlight for all other listings)
+      
+    });
+
+
+    // Create a new div with the class 'details' for each store
+    // and fill it with the city and phone number
+    var details = listing.appendChild(document.createElement('div'));
+    details.innerHTML = prop.city;
+    if (prop.phone) {
+      details.innerHTML += ' · ' + prop.phoneFormatted;
+    }
+  }
+}
+
+buildLocationList(stores);
+
+function flyToStore(currentFeature) { //console.log(currentFeature.geometry.coordinates);
+
+    var lon = currentFeature.geometry.coordinates[0];
+
+    var lat = currentFeature.geometry.coordinates[1];
+
+    map.setView([lon, lat], 5);
+
+    var htm = '<div>'
+    +'<img src="css/images/img12.jpg" style="width:100%;">'
+    +'<p>PPPPPPPPPPPPPPPPPPPP</p>'
+    +'<p>'+currentFeature.properties.address+'</p>'
+    +'</div>';
+
+    L.marker([lon, lat]).addTo(map).bindPopup(htm).openPopup();
+  
+}
+
+function createPopUp(currentFeature) {  
+
+  var lat = currentFeature.geometry.coordinates[1];
+
+  var lon = currentFeature.geometry.coordinates[0];
+
+  var htm = '<div>'
+    +'<img src="css/images/img12.jpg" style="width:100%;">'
+    +'<p>Leh is located some 3500 metres above sea level and is the capital of Ladakh. The town lies in the ancient Indus valley and has been a trading post for Himalayan peoples for centuries.</p>'
+    +'</div>';
+
+  var marker =  L.marker([lon, lat]).addTo(map).bindPopup(htm).openPopup();
+
+}
+
+
+
+stores.features.forEach(function(currentFeature) { 
+
+    var lat = currentFeature.geometry.coordinates[1];
+    var lon = currentFeature.geometry.coordinates[0];
+   
+   /* console.log(lon+"____"+lat);*/
+
+    var marker =  L.marker([lon,lat]).addTo(map);
+
+    marker.on('click', function(e) {   
+
+      createPopUp(currentFeature);
+
+    });
+
+});
+
+
+
+/**/
+
+</script>
+
+
+</html>
