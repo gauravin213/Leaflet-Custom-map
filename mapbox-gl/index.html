@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Map</title>
+  
+	<script src='assets/js/mapbox-gl.js'></script>
+
+	<link href='assets/css/mapbox-gl.css' rel='stylesheet' />
+
+  <link rel="stylesheet" type="text/css" href="assets/css/custom-mapbox-gl.css">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+ 
+</head>
+<body>
+
+	
+<div class='sidebar'>
+  <div class='heading'>
+    <h1>Our locations</h1>
+  </div>
+  <div id='listings' class='listings'></div>
+</div>
+
+
+<div id='map' class='map pad2'>Map</div>
+
+</body>
+
+
+<script type="text/javascript">
+
+
+mapboxgl.accessToken = 'pk.eyJ1IjoiZ2F1cmF2aW4yMTMiLCJhIjoiY2p0bDVsMjBpMDIzMzN5bzF4aXZrZmVsdCJ9.mHogCW5SIYmVii3r9HNCAQ';
+// This adds the map to your page
+var map = new mapboxgl.Map({
+  // container id specified in the HTML
+  container: 'map',
+  // style URL
+  style: 'mapbox://styles/mapbox/streets-v10',
+  // initial position in [lon, lat] format
+  center: [72.877426, 19.076090],
+  // initial zoom
+  zoom: 4
+});
+
+
+var stores = {
+/*  "type": "FeatureCollection",*/
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          75.040298,
+          14.167040
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "aaaaaa",
+        "phone": "bb",
+        "address": "address",
+        "caption_text": "caption_text",
+        "city": "dd",
+        "country": "ee",
+        "crossStreet": "fff",
+        "postalCode": "iii",
+        "state": "jjj"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          88.719391,
+          26.540457
+        ]
+      },
+      "properties": {
+        "phoneFormatted": "(202) 331-3355",
+        "phone": "2023313355",
+        "address": "1901 L St. NW",
+        "caption_text": "caption_text",
+        "city": "Washington DC",
+        "country": "United States",
+        "crossStreet": "at 19th St",
+        "postalCode": "20036",
+        "state": "D.C."
+      }
+    }
+  ]
+};
+
+map.on('load', function(e) {
+  // Add the data to your map as a layer
+  map.addLayer({
+    id: 'locations',
+    type: 'symbol',
+    // Add a GeoJSON source containing place coordinates and information.
+    source: {
+      type: 'geojson',
+      data: stores
+    },
+    layout: {
+      'icon-image': 'restaurant-15',
+      'icon-allow-overlap': true,
+    }
+  });
+});
+
+
+function buildLocationList(data) {
+  // Iterate through the list of stores
+  for (i = 0; i < data.features.length; i++) {
+    var currentFeature = data.features[i];
+    // Shorten data.feature.properties to `prop` so we're not
+    // writing this long form over and over again.
+    var prop = currentFeature.properties;
+    // Select the listing container in the HTML and append a div
+    // with the class 'item' for each store
+    var listings = document.getElementById('listings');
+    var listing = listings.appendChild(document.createElement('div'));
+    listing.className = 'item';
+    listing.id = 'listing-' + i;
+
+    // Create a new link with the class 'title' for each store
+    // and fill it with the store address
+    var link = listing.appendChild(document.createElement('a'));
+    link.href = '#';
+    link.className = 'title';
+    link.dataPosition = i;
+    link.innerHTML = prop.address;
+
+
+    // Add an event listener for the links in the sidebar listing
+	link.addEventListener('click', function(e) {
+	  // Update the currentFeature to the store associated with the clicked link
+	  var clickedListing = data.features[this.dataPosition];
+	  // 1. Fly to the point associated with the clicked link
+	  flyToStore(clickedListing);
+	  // 2. Close all other popups and display popup for clicked store
+	  createPopUp(clickedListing);
+	  // 3. Highlight listing in sidebar (and remove highlight for all other listings)
+	  var activeItem = document.getElementsByClassName('active');
+	   //console.log(activeItem);
+	  if (activeItem[0]) {
+	    activeItem[0].classList.remove('active');
+	  }
+	  this.parentNode.classList.add('active');
+	});
+
+    // Create a new div with the class 'details' for each store
+    // and fill it with the city and phone number
+    var details = listing.appendChild(document.createElement('div'));
+    details.innerHTML = prop.city;
+    if (prop.phone) {
+      details.innerHTML += ' · ' + prop.phoneFormatted;
+    }
+  }
+}
+
+buildLocationList(stores);
+
+
+function flyToStore(currentFeature) {
+  map.flyTo({
+    center: currentFeature.geometry.coordinates,
+    zoom: 4
+  });
+}
+
+function createPopUp(currentFeature) {
+  var popUps = document.getElementsByClassName('mapboxgl-popup');
+  // Check if there is already a popup on the map and if so, remove it
+  if (popUps[0]) popUps[0].remove();
+
+  var popup = new mapboxgl.Popup({ closeOnClick: false })
+    .setLngLat(currentFeature.geometry.coordinates)
+
+    .setHTML('<h4>' + currentFeature.properties.caption_text + '</h4>')
+
+    .addTo(map);
+}
+
+
+// This will let you use the .remove() function later on
+if (!('remove' in Element.prototype)) {
+  Element.prototype.remove = function() {
+    if (this.parentNode) {
+      this.parentNode.removeChild(this);
+    }
+  };
+}
+
+
+// Add an event listener for when a user clicks on the map
+map.on('click', function(e) {
+  // Query all the rendered points in the view
+  var features = map.queryRenderedFeatures(e.point, { layers: ['locations'] });
+  if (features.length) {
+    var clickedPoint = features[0];
+    // 1. Fly to the point
+    flyToStore(clickedPoint);
+    // 2. Close all other popups and display popup for clicked store
+    createPopUp(clickedPoint);
+    // 3. Highlight listing in sidebar (and remove highlight for all other listings)
+    var activeItem = document.getElementsByClassName('active');
+    if (activeItem[0]) {
+      activeItem[0].classList.remove('active');
+    }
+    // Find the index of the store.features that corresponds to the clickedPoint that fired the event listener
+    var selectedFeature = clickedPoint.properties.address;
+
+    for (var i = 0; i < stores.features.length; i++) {
+      if (stores.features[i].properties.address === selectedFeature) {
+        selectedFeatureIndex = i;
+      }
+    }
+    // Select the correct list item using the found index and add the active class
+    var listing = document.getElementById('listing-' + selectedFeatureIndex);
+    listing.classList.add('active');
+  }
+});
+
+
+
+var ind = 0;
+
+stores.features.forEach(function(marker) {  
+
+
+  // Create a div element for the marker
+  var el = document.createElement('div');
+  // Add a class called 'marker' to each div
+  el.className = 'marker';
+  el.id = 'marker-'+ind;
+  // By default the image for your custom marker will be anchored
+  // by its center. Adjust the position accordingly
+  // Create the custom markers, set their position, and add to map
+  new mapboxgl.Marker(el, { offset: [0, -23] })
+    .setLngLat(marker.geometry.coordinates)
+    .addTo(map);
+
+    
+    el.addEventListener('click', function(e) {
+	  // 1. Fly to the point
+	  flyToStore(marker);
+	  // 2. Close all other popups and display popup for clicked store
+	  createPopUp(marker);
+	  // 3. Highlight listing in sidebar (and remove highlight for all other listings)
+	  e.stopPropagation();
+
+	 
+	   var marker_id_str = this.id;
+
+	   var marker_id = marker_id_str.replace("marker-", "");
+
+	    //console.log(marker_id);
+
+
+	   jQuery('#listings > .item').removeClass('active');
+	
+	   jQuery('#'+'listing-'+marker_id).addClass('active');
+
+	   
+	});
+  
+
+
+  ind++;
+
+
+
+});
+
+
+
+</script>
+
+
+<
+
+
+</html>
